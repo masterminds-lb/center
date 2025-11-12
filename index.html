@@ -970,7 +970,7 @@ function sendWhatsApp(event) {
     event.preventDefault();
     
     const name = document.getElementById('name').value.trim();
-    const phone = document.getElementById('phone').value.trim();
+    let phone = document.getElementById('phone').value.trim().replace(/\s+/g, ''); // Remove all spaces
     const message = document.getElementById('message').value.trim();
     
     // Get error message elements
@@ -1000,14 +1000,17 @@ function sendWhatsApp(event) {
         isValid = false;
     }
     
-    // Validate phone
-    const phoneRegex = /^(03|70|71|76|81|89)\d{6}$/;
+    // Validate phone with multiple formats
+    const phoneFormat1 = /^(03|70|71|76|82|89)\d{6}$/;  // 03/70/71/76/82/89 + 6 digits = 8 total
+    const phoneFormat2 = /^\+961(70|71|76|82|89)\d{6}$/;  // +961 + 03/70/71/76/82/89 + 6 digits
+    const phoneFormat3 = /^\+961(3)\d{6}$/;  // +961 + 3 + 6 digits
+    
     if (!phone) {
         phoneError.textContent = '⚠️ Please enter your phone number';
         phoneError.classList.add('show');
         phoneInput.classList.add('error');
         isValid = false;
-    } else if (!phoneRegex.test(phone)) {
+    } else if (!phoneFormat1.test(phone) && !phoneFormat2.test(phone) && !phoneFormat3.test(phone)) {
         phoneError.textContent = '⚠️ Invalid format.';
         phoneError.classList.add('show');
         phoneInput.classList.add('error');
