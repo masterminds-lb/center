@@ -622,6 +622,24 @@
             opacity: 1;
             transform: scale(1);
         }
+
+        /* Error message styling */
+.error-message {
+    color: #ff4444;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.form-group input.error,
+.form-group textarea.error {
+    border-color: #ff4444 !important;
+}
+
     </style>
 </head>
 <body data-theme="light">
@@ -769,22 +787,25 @@
         <h2>Ready to Start Your Journey?</h2>
         <div class="contact-content">
             <div class="contact-form">
-                <form>
-                    <div class="form-group">
-                        <label for="name">Your Name</label>
-                        <input type="text" id="name" placeholder="Enter your name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" placeholder="XX XXX XXX" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" rows="5" placeholder="Tell us about your learning goals..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;" onclick="sendWhatsApp(event)">Send Message</button>
-                </form>
-            </div>
+    <form>
+        <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Enter your name">
+            <div class="error-message" id="name-error">⚠️ Please enter your name</div>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="Enter your phone number">
+            <div class="error-message" id="phone-error">⚠️ Please enter a valid phone number</div>
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" rows="5" placeholder="Tell us about your learning goals..."></textarea>
+            <div class="error-message" id="message-error">⚠️ Please enter your message</div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;" onclick="sendWhatsApp(event)">Send Message</button>
+    </form>
+</div>
             <div class="contact-info">
                 <div class="contact-item">
                     <div class="contact-icon">📧</div>
@@ -952,17 +973,56 @@ function sendWhatsApp(event) {
     const phone = document.getElementById('phone').value.trim();
     const message = document.getElementById('message').value.trim();
     
-    // Validation - Check if any field is empty
-    if (!name || !phone || !message) {
-        alert('⚠️ Please fill in all fields before sending your message!');
-        return;
+    // Get error message elements
+    const nameError = document.getElementById('name-error');
+    const phoneError = document.getElementById('phone-error');
+    const messageError = document.getElementById('message-error');
+    
+    // Get input elements
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+    const messageInput = document.getElementById('message');
+    
+    // Reset all errors
+    nameError.classList.remove('show');
+    phoneError.classList.remove('show');
+    messageError.classList.remove('show');
+    nameInput.classList.remove('error');
+    phoneInput.classList.remove('error');
+    messageInput.classList.remove('error');
+    
+    let isValid = true;
+    
+    // Validate name
+    if (!name) {
+        nameError.classList.add('show');
+        nameInput.classList.add('error');
+        isValid = false;
     }
     
-    // Phone number validation for Lebanese numbers
+    // Validate phone
     const phoneRegex = /^(03|70|71|76|81|89)\d{6}$/;
+    if (!phone) {
+        phoneError.textContent = '⚠️ Please enter your phone number';
+        phoneError.classList.add('show');
+        phoneInput.classList.add('error');
+        isValid = false;
+    } else if (!phoneRegex.test(phone)) {
+        phoneError.textContent = '⚠️ Invalid format.';
+        phoneError.classList.add('show');
+        phoneInput.classList.add('error');
+        isValid = false;
+    }
     
-    if (!phoneRegex.test(phone)) {
-        alert('⚠️ Please enter a valid phone number!');
+    // Validate message
+    if (!message) {
+        messageError.classList.add('show');
+        messageInput.classList.add('error');
+        isValid = false;
+    }
+    
+    // If validation fails, stop here
+    if (!isValid) {
         return;
     }
     
